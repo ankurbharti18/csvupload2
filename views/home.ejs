@@ -1,0 +1,104 @@
+<!-- views/home.ejs -->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSV File Explorer</title>
+    <!-- Add Bootstrap CDN link -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link href="//maxcdn.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
+</head>
+
+<body>
+    <div class="container">
+        <h1 class="mt-4">CSV File Explorer</h1>
+
+        <h2 class="mt-4">List of Uploaded CSV Files</h2>
+        <ul class="list-group">
+            <% files.forEach(file=> { %>
+                <li class="list-group-item">
+                    <%= file %>
+                </li>
+                <% }); %>
+        </ul>
+
+        <form class="mt-4" action="/upload" method="post" enctype="multipart/form-data">
+            <div class="input-group">
+                <div class="custom-file">
+                    <input type="file" class="custom-file-input" name="csvFile" accept=".csv" required>
+                    <label class="custom-file-label">Choose CSV file</label>
+                </div>
+                <div class="input-group-append">
+                    <button type="submit" class="btn btn-primary">Upload</button>
+                </div>
+            </div>
+        </form>
+
+        <% if (csvData && csvData.length> 0) { %>
+            <h2 class="mt-4">CSV Data</h2>
+            <table class="table table-bordered" id="csvTable">
+                <thead>
+                    <tr>
+                        <% Object.keys(csvData[0]).forEach((header)=> { %>
+                            <th>
+                                <%= header %>
+                                    <i class="fa fa-fw fa-sort"
+                                    onclick="sortColumn('<%= header %>')"></i>
+                            </th>
+                            <% }); %>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% csvData.forEach((row)=> { %>
+                        <tr>
+                            <% Object.values(row).forEach((value)=> { %>
+                                <td>
+                                    <%= value %>
+                                </td>
+                                <% }); %>
+                        </tr>
+                        <% }); %>
+                </tbody>
+            </table>
+            <% } %>
+
+                <script>
+                    function sortColumn(columnName) {
+                        const table = document.getElementById('csvTable');
+                        const rows = Array.from(table.rows).slice(1); // Exclude the header row
+
+                        rows.sort((a, b) => {
+                            const valueA = a.cells[Array.from(a.cells).findIndex(cell => cell.textContent === columnName)].textContent;
+                            const valueB = b.cells[Array.from(b.cells).findIndex(cell => cell.textContent === columnName)].textContent;
+
+                            return valueA.localeCompare(valueB);
+                        });
+
+                        // Reverse the order for descending sort
+                        rows.reverse();
+
+                        // Clear the table body
+                        table.tBodies[0].innerHTML = '';
+
+                        // Append sorted rows to the table
+                        rows.forEach(row => table.tBodies[0].appendChild(row));
+                    }
+                </script>
+    </div>
+
+    <!-- Add Bootstrap JS and Popper.js for dropdowns if needed -->
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+        integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+        crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+        crossorigin="anonymous"></script>
+</body>
+
+</html>
